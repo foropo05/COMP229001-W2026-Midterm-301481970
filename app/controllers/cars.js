@@ -39,7 +39,60 @@ module.exports.create = async function (req, res, next) {
     console.log(error);
     next(error);
   }
+const Car = require("../models/cars");
 
+exports.getCarById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const car = await Car.findById(id);
+    if (!car) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+
+    res.status(200).json(car);
+  } catch (error) {
+    res.status(400).json({ message: "Invalid car id", error: error.message });
+  }
+};
+
+exports.updateCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedCar = await Car.findByIdAndUpdate(id, req.body, {
+      new: true,         // return updated doc
+      runValidators: true // validate schema
+    });
+
+    if (!updatedCar) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+
+    res.status(200).json({
+      message: "Car updated successfully",
+      car: updatedCar
+    });
+  } catch (error) {
+    res.status(400).json({ message: "Update failed", error: error.message });
+  }
+};
+
+exports.deleteCar = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedCar = await Car.findByIdAndDelete(id);
+
+    if (!deletedCar) {
+      return res.status(404).json({ message: "Car not found" });
+    }
+
+    res.status(200).json({ message: "Car deleted successfully" });
+  } catch (error) {
+    res.status(400).json({ message: "Delete failed", error: error.message });
+  }
+};
 }
 
 module.exports.getAll = async function (req, res, next) {
